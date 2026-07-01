@@ -1,0 +1,48 @@
+# AWS SSM Tunnel Manager - Configuration File
+# Select a different config via the Browse button in the app.
+
+# AWS profile and region for SSO auth and SSM sessions
+profile: VerifoneIntercardProd
+region: eu-west-3
+
+# The bastion/jump instance that SSM connects to
+instance_id: i-0c057ac8ccfaf1a46
+
+# How often (seconds) to poll `aws sts get-caller-identity` to check SSO health
+check_interval: 30
+
+tunnels:
+  # RDP tunnel: forward localhost:13389 to the instance's RDP port
+  - name: RDP
+    enabled: true
+    document: AWS-StartPortForwardingSession
+    parameters:
+      portNumber: "3389"
+      localPortNumber: "13389"
+
+  # Bitbucket Git (SSH/smart-HTTP) tunnel via remote host forwarding
+  - name: Bitbucket-Git
+    enabled: true
+    document: AWS-StartPortForwardingSessionToRemoteHost
+    parameters:
+      host: bitbucket.vficloud.net
+      portNumber: "7999"
+      localPortNumber: "7999"
+
+  # Bitbucket HTTPS tunnel
+  - name: Bitbucket-HTTPS
+    enabled: true
+    document: AWS-StartPortForwardingSessionToRemoteHost
+    parameters:
+      host: bitbucket.vficloud.net
+      portNumber: "443"
+      localPortNumber: "443"
+
+  # Jenkins HTTPS tunnel (disabled by default)
+  - name: Jenkins-HTTPS
+    enabled: false
+    document: AWS-StartPortForwardingSessionToRemoteHost
+    parameters:
+      host: jenkins2.verifone.com
+      portNumber: "8443"
+      localPortNumber: "8443"
